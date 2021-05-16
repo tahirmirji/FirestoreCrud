@@ -11,10 +11,11 @@ class FirestoreCRUDPage extends StatefulWidget {
 }
 
 class FirestoreCRUDPageState extends State<FirestoreCRUDPage> {
-  String id;
   final db = FirebaseFirestore.instance;
   final _formKey = GlobalKey<FormState>();
+
   String name;
+  String id;
 
   Card buildItem(DocumentSnapshot doc) {
     return Card(
@@ -33,7 +34,7 @@ class FirestoreCRUDPageState extends State<FirestoreCRUDPage> {
             ),
             SizedBox(height: 12),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 FlatButton(
                   onPressed: () => updateData(doc),
@@ -44,7 +45,11 @@ class FirestoreCRUDPageState extends State<FirestoreCRUDPage> {
                 SizedBox(width: 8),
                 FlatButton(
                   onPressed: () => deleteData(doc),
-                  child: Text('Delete'),
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  color: Colors.black,
                 ),
               ],
             )
@@ -58,11 +63,12 @@ class FirestoreCRUDPageState extends State<FirestoreCRUDPage> {
     return TextFormField(
       decoration: InputDecoration(
         border: InputBorder.none,
-        hintText: 'name',
+        hintText: 'Name',
         fillColor: Colors.grey[300],
-        filled: true,
+        filled: true
       ),
-      validator: (value) {
+      validator: (value) 
+      {
         if (value.isEmpty) {
           return 'Please enter some text';
         }
@@ -78,14 +84,14 @@ class FirestoreCRUDPageState extends State<FirestoreCRUDPage> {
         title: Text('Firestore CRUD'),
       ),
       body: ListView(
-        padding: EdgeInsets.all(8),
+        padding: EdgeInsets.all(8.0),
         children: <Widget>[
           Form(
             key: _formKey,
             child: buildTextFormField(),
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               RaisedButton(
                 onPressed: createData,
@@ -99,27 +105,23 @@ class FirestoreCRUDPageState extends State<FirestoreCRUDPage> {
               ),
             ],
           ),
-          
           StreamBuilder<QuerySnapshot>(
-            stream: db.collection('CRUD').snapshots(),
+            stream: FirebaseFirestore.instance.collection('CRUD').snapshots(),
             // ignore: missing_return
             builder: (context, snapshot) {
               try {
                 if (snapshot.hasData) {
                   return Column(
-                      children: snapshot.data.docs
-                          .map((doc) => buildItem(doc))
-                          .toList());
+                 children: 
+          snapshot.data.docs.map((doc) => buildItem(doc)).toList());
                 } else {
-                  return SizedBox();
+                  return Container();
                 }
-              } catch (e) {
+              } catch (e) 
+              {
                 print(e.toString());
               }
-              return Container(
-                height: 1.0,
-                width: 1.0,
-              );
+              return Container( height: 1.0,width: 1.0, );
             },
           )
         ],
@@ -130,11 +132,9 @@ class FirestoreCRUDPageState extends State<FirestoreCRUDPage> {
   void createData() async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-      DocumentReference ref = await db
-          .collection('CRUD')
-          .add({'name': '$name', 'todo': randomTodo()});
+      DocumentReference ref = await db.collection('CRUD').add({'name': '$name', 'todo': randomTodo()});
       setState(() => id = ref.get().toString());
-      print(ref.get().toString());
+      print('$id');
     }
   }
 
@@ -146,17 +146,19 @@ class FirestoreCRUDPageState extends State<FirestoreCRUDPage> {
     DocumentSnapshot snapshot = await db.collection('CRUD').doc(id).get();
   }
 
-  void updateData(DocumentSnapshot doc) async {
-    await db.collection('CRUD').doc(doc.id).update({'todo': 'Smile please'});
+  void updateData(DocumentSnapshot doks) async {
+    await db.collection('CRUD').doc(doks.id).update({'todo': 'New Value As you clicked Update'});
   }
 
-  void deleteData(DocumentSnapshot doc) async {
-    await db.collection('CRUD').doc(doc.id).delete();
+  void deleteData(DocumentSnapshot doks) async {
+    await db.collection('CRUD').doc(doks.id).delete()
+    .then((value) => print('Document ${doks.id} deleted successfully'));
     setState(() => id = null);
   }
 
   String randomTodo() {
     final randomNumber = Random().nextInt(4);
+    print('TODO Random number: $randomNumber');
     String todo;
     switch (randomNumber) {
       case 1:
